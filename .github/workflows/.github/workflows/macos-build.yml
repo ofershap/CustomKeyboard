@@ -1,0 +1,41 @@
+name: macOS portability build
+on:
+  push:
+    branches: [macos-hidapi-port]
+  workflow_dispatch:
+    inputs:
+      upload_artifacts:
+        description: Upload app and preview files (verify storage allowance first)
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: brew install qt@5 hidapi pkg-config
+      - name: Test configuration-interface selection (mocked)
+        run: |
+          clang++ -std=c++11 -Wall -Wextra -Werror -Itests/macos/stubs -IKeyBoardSetter/KeyboardSetter/HidAPI tests/macos/deviceconnection_test.cpp KeyBoardSetter/KeyboardSetter/HidAPI/deviceconnection.cpp -o /tmp/interface-tests
+          /tmp/interface-tests
+      - name: Build, bundle, and capture offline UI previews
+        run: scripts/build-macos.sh
+      - name: Upload development bundle and UI previews
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeyboardSetter-${{ matrix.runner }}
+          path: |
+            build-macos/KeyboardSetter-*.zip
+            build-macos/preview/*.png
+          retention-days: 1
+          if-no-files-found: error

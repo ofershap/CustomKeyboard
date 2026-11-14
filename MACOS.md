@@ -46,8 +46,15 @@ Gatekeeper or other security protections to run an untrusted build.
   interface, missing interface metadata, ambiguous matches, wrong VID,
   serial filtering, empty enumeration, and initialization failure.
 - Original Qt UI: offline Linux regression build and pixel inspection done.
-- Native Mac build, native UI inspection, and actual keypad verification:
-  pending. Do not describe hardware support as tested until these pass.
+- Native macOS 15 arm64 and x86_64: compile, bundle, ad-hoc signature
+  verification, offline launch, and native UI image inspection passed in
+  [run 43616165462](https://github.com/ofershap/CustomKeyboard/actions/runs/43616165462).
+- Actual keypad discovery/configuration ACKs, reconnect persistence, and emitted
+  keyboard events through this port: untested. No physical keypad is attached
+  to CI; do not describe this port's hardware support as tested.
+- Earlier ARM launch failed because macdeployqt missed a transitive Brotli
+  library. The build script now bundles the matching Homebrew Brotli libraries
+  before signing. Both native architectures passed after that change.
 
 For a real device test, verify the selected physical slot, record the ACK
 result, unplug/reconnect, and check the emitted modifier/key event. A chord

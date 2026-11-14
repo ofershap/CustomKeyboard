@@ -43,5 +43,12 @@ int main() {
     init_result = -1;
     assert(!zdd_hid_open(0x5131,0x2019,1,nullptr));
     assert(opens == 2 && frees == 8);
-    std::cout << "PASS: 9 interface-selection scenarios; no USB I/O performed\n";
+    setenv("ZDD_OFFLINE_PREVIEW", "1", 1);
+    init_result = 0;
+    enumeration = &config;
+    assert(!zdd_hid_open(0x5131,0x2019,1,nullptr));
+    assert(opens == 2 && frees == 8);
+    assert(std::wcsstr(zdd_hid_error(nullptr),L"Offline preview"));
+    unsetenv("ZDD_OFFLINE_PREVIEW");
+    std::cout << "PASS: 10 interface-selection scenarios; no USB I/O performed\n";
 }

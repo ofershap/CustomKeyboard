@@ -1,7 +1,7 @@
 #ifndef CUSTOMKEYBOARD_H
 #define CUSTOMKEYBOARD_H
 
-#include "HidAPI/hidapi.h"
+#include "HidAPI/deviceconnection.h"
 #include "HidAPI/hidcodetable.h"
 #include "customkey.h"
 #include <QObject>

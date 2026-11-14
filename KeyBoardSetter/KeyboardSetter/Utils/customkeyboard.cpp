@@ -1,5 +1,5 @@
 #include "customkeyboard.h"
-#include "HidAPI/hidapi.h"
+#include "HidAPI/deviceconnection.h"
 #include "HidAPI/hidcodetable.h"
 #include <QPushButton>
 #include <QVector>
@@ -144,7 +144,7 @@ bool CustomKeyboard::checkMacroAddable(int cur_key_no){
 int CustomKeyboard::download(HIDCodeTable *table){
     //open device
     hid_device *my_device;
-    my_device = hid_open(vid,pid,1,nullptr);
+    my_device = zdd_hid_open(vid,pid,1,nullptr);
     if(my_device!=NULL){
         //open success,prepare data
         qDebug() << "device opened" <<endl;
@@ -355,7 +355,7 @@ int CustomKeyboard::download(HIDCodeTable *table){
         }else{
             //wirte failed
             last_error = tr("Data sending is failed!");
-            QString text = QString::fromWCharArray(hid_error(my_device));
+            QString text = QString::fromWCharArray(zdd_hid_error(my_device));
             qDebug() << "Sending Failed! Error:"<< text;
             logToMain("Data sending is failed:"+ text);
             hid_close(my_device);
@@ -396,7 +396,7 @@ bool CustomKeyboard::testHardware()
 {
     //open device
     hid_device *my_device;
-    my_device = hid_open(vid,pid,1,nullptr);
+    my_device = zdd_hid_open(vid,pid,1,nullptr);
     bool is_ok = false;
     if(my_device!=NULL){
         qDebug() << "device opened.";
@@ -411,8 +411,8 @@ bool CustomKeyboard::testHardware()
         test_frame[1] = 0x0c;
         int res = hid_write(my_device, test_frame, 65);
         if(res == -1){
-            qDebug() << "hid_write() Error:" << QString::fromWCharArray(hid_error(my_device));
-            logToMain("hid_write() Error:"+QString::fromWCharArray(hid_error(my_device)));
+            qDebug() << "hid_write() Error:" << QString::fromWCharArray(zdd_hid_error(my_device));
+            logToMain("hid_write() Error:"+QString::fromWCharArray(zdd_hid_error(my_device)));
         }
         else{
             uchar test_receive[128] = {0x00};
@@ -450,11 +450,11 @@ bool CustomKeyboard::testHardware()
 
     }
     else{
-        qDebug() << "hid_open() Error:" << QString::fromWCharArray(hid_error(my_device));
-        logToMain("hid_open() Error:"+QString::fromWCharArray(hid_error(my_device)));
+        qDebug() << "hid_open() Error:" << QString::fromWCharArray(zdd_hid_error(my_device));
+        logToMain("hid_open() Error:"+QString::fromWCharArray(zdd_hid_error(my_device)));
         if(hid_exit()!=0){
-            qDebug() << "hid_exit Error:" << QString::fromWCharArray(hid_error(my_device));
-            logToMain("hid_exit Error:"+QString::fromWCharArray(hid_error(my_device)));
+            qDebug() << "hid_exit Error:" << QString::fromWCharArray(zdd_hid_error(my_device));
+            logToMain("hid_exit Error:"+QString::fromWCharArray(zdd_hid_error(my_device)));
         }
         return false;
     }
@@ -467,7 +467,7 @@ bool CustomKeyboard::tryOpen()
 {
     //open device
     hid_device *my_device;
-    my_device = hid_open(vid,pid,1,nullptr);
+    my_device = zdd_hid_open(vid,pid,1,nullptr);
     bool success = true;
     if(my_device==NULL){
         success = false;
@@ -478,7 +478,7 @@ bool CustomKeyboard::tryOpen()
     int error = hid_exit();
     if(error != 0){
         qDebug() << "hid_exit() Error";
-        qDebug() << QString::fromWCharArray(hid_error(my_device));
+        qDebug() << QString::fromWCharArray(zdd_hid_error(my_device));
     }
     return success;
 }
@@ -495,7 +495,7 @@ int CustomKeyboard::getVersion()
     //open device
     hid_device *my_device;
     int ret = 0;
-    my_device = hid_open(vid,pid,1,nullptr);
+    my_device = zdd_hid_open(vid,pid,1,nullptr);
     if(my_device!=nullptr){
         uchar test_frame[65]={0x00};
         test_frame[0] = 0x00;

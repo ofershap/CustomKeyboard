@@ -21,7 +21,6 @@ SOURCES += \
     Utils/customkey.cpp \
     Utils/customkeyboard.cpp \
     Forms/devicefinder.cpp \
-    HidAPI/hidapi.c \
     HidAPI/hidcodetable.cpp \
     Utils/keyvalue.cpp \
     main.cpp \
@@ -47,8 +46,19 @@ FORMS += \
     Forms/devicefinder.ui \
     Forms/settingform.ui
 
-LIBS += -L$$_PRO_FILE_PWD_/  libs/libusb-1.0
-LIBS +=  -lsetupapi
+win32 {
+    SOURCES += HidAPI/hidapi.c
+    LIBS += -L$$_PRO_FILE_PWD_/ libs/libusb-1.0
+    LIBS += -lsetupapi
+    RC_FILE = logo.rc
+}
+macx {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += hidapi
+    SOURCES += HidAPI/deviceconnection.cpp
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
+}
+HEADERS += HidAPI/deviceconnection.h
 
 
 TRANSLATIONS += lang/trans_zh_CN.ts
@@ -62,4 +72,3 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     lang/trans_en_US.ts \
     lang/trans_zh_CN.ts
-RC_FILE = logo.rc

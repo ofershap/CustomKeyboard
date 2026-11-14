@@ -11,6 +11,16 @@ cd "$build"
 make -j"$(sysctl -n hw.logicalcpu)"
 app="$build/KeyboardSetter.app"
 "$qt/bin/macdeployqt" "$app" -always-overwrite -verbose=1
+# macdeployqt 5 can miss the @rpath dependency from Homebrew's Brotli
+# decoder to its common library on Apple Silicon. Keep the exact Homebrew
+# dependency versions with the bundle, not links back to the build machine.
+brotli="$(brew --prefix brotli)"
+for library in "$brotli"/lib/libbrotli*.dylib; do
+    name="$(basename "$library")"
+    cp -L "$library" "$app/Contents/Frameworks/$name"
+    chmod u+w "$app/Contents/Frameworks/$name"
+    install_name_tool -id "@rpath/$name" "$app/Contents/Frameworks/$name"
+done
 # These are vendor runtime data, not credentials or user settings.
 printf '%s\n' '{"user_language":"english"}' > "$app/Contents/MacOS/usercondif.ini"
 for locale in en_US zh_CN; do
